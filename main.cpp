@@ -1,7 +1,9 @@
 #include "ClassicalVisitor.hpp"
 #include "MetaVisitor.hpp"
+#include "VTable.hpp"
 
 using namespace std;
+using namespace Jason;
 
 struct IShape { virtual ~IShape() = default; };
 
@@ -29,18 +31,17 @@ int main()
     cout << "---------------- Test MetaVisitor -----------------" << endl;
     Triangle tri1;
     Triangle tri2;
-    Sphere sphere;
+    Sphere sphere1;
+    Sphere sphere2;
+    IShape ishape;
 
-    JMetaVisitor::MetaVisitor meta_visitor;
-    // meta_visitor.PushElement(&tri, &sphere);
+    MetaVisitor meta_visitor;
+    auto triangle_behavior = [](Triangle* elem) -> void { cout << "elem is : " << elem->name << endl; };
+    auto sphere_behavior = [](Sphere* elem) -> void { cout << "elem is : " << elem->name << endl; };
+    meta_visitor.RegisterBehaviors(triangle_behavior, sphere_behavior);
 
-    // auto tri_behavior = [](Triangle* elem) { cout << "elem behavior : " << "draw " << elem->name << endl; };
-    // auto sphere_behavior = [](Sphere* elem) { cout << "elem behavior : " << "draw " << elem->name << endl; };
-    auto tri_behavior = []() { cout << "elem behavior : " << "draw 1"<< endl; };
-    auto sphere_behavior = []() { cout << "elem behavior : " << "draw 2" << endl; };
-    meta_visitor.RegisterBehavior(tri_behavior, tri_behavior);
-
-    // meta_visitor.execute()
+    meta_visitor.Visit(&tri1);
+    meta_visitor.Visit(&sphere1);
 
     return 0;
 }
