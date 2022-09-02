@@ -10,7 +10,7 @@ namespace Jason {
 namespace detail {
     template<typename Ret, typename ...Args>
     struct __FunctionTraitsBase {
-        using ArgTuple = TypeList<Args...>;
+        using ArgsList = TypeList<Args...>;
         using ResultType = Ret;
         using FuncType = std::function<Ret(Args...)>;
     };
@@ -24,9 +24,9 @@ namespace detail {
     template<typename Ret, typename C, typename ...Args>
     struct __FunctionTraits<Ret(C::*)(Args...)> : public __FunctionTraitsBase<Ret, Args...> {};
     template<typename Ret, typename C, typename ...Args>
-    struct __FunctionTraits<Ret(C::*)(Args...) const> : public __FunctionTraitsBase<Ret, Args...> {};
+    struct __FunctionTraits<Ret(C::*)(Args...) const> : public __FunctionTraitsBase<Ret, Args...> {/*lambda*/};
     template<typename Func>
-    struct __FunctionTraits : public __FunctionTraits<decltype(&Func::operator())> {/*lambda*/ };
+    struct __FunctionTraits : public __FunctionTraits<decltype(&Func::operator())> {/*lambda*/};
 
 }
 

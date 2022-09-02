@@ -7,8 +7,10 @@ using namespace Jason;
 
 struct IShape { virtual ~IShape() = default; };
 
-struct Triangle : IShape { string name = "Triangle"; };
-struct Sphere : IShape { string name = "Sphere"; };
+struct Triangle : IShape { string name = "Triangle"; int id = 0; };
+struct Sphere : IShape { string name = "Sphere"; int id = 1; };
+
+
 
 int main()
 {
@@ -30,18 +32,21 @@ int main()
     // JMetaVisitor
     cout << "---------------- Test MetaVisitor -----------------" << endl;
     Triangle tri1;
-    Triangle tri2;
     Sphere sphere1;
-    Sphere sphere2;
-    IShape ishape;
 
     MetaVisitor meta_visitor;
-    auto triangle_behavior = [](Triangle* elem) -> void { cout << "elem is : " << elem->name << endl; };
-    auto sphere_behavior = [](Sphere* elem) -> void { cout << "elem is : " << elem->name << endl; };
-    meta_visitor.RegisterBehaviors(triangle_behavior, sphere_behavior);
+    auto NR_triangle_behavior = [](Triangle* elem) -> decltype(auto) { cout << "elem id is : " << elem->id << endl; };
+    auto NR_sphere_behavior = [](Sphere* elem) -> decltype(auto) { cout << "elem id is : " << elem->id << endl; };
+    auto R_triangle_behavior = [](Triangle* elem) -> decltype(auto) { return elem->id; };
+    auto R_sphere_behavior = [](Sphere* elem) -> decltype(auto) { return elem->id; };
+    meta_visitor.RegisterBehaviors(R_triangle_behavior, R_sphere_behavior);
 
-    meta_visitor.Visit(&tri1);
-    meta_visitor.Visit(&sphere1);
+    void* ret1 = nullptr;
+    void* ret2 = nullptr;
+    meta_visitor.Visit(&tri1, ret1);
+    meta_visitor.Visit(&sphere1, ret2);
+    cout << *(int*)ret1 << endl;
+    cout << *(int*)ret2 << endl;
 
     return 0;
 }

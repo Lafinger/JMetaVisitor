@@ -5,6 +5,7 @@
 
 #include <functional>
 #include <unordered_map>
+#include <queue>
 
 struct Triangle;
 struct Sphere;
@@ -15,38 +16,39 @@ namespace Jason
 class MetaVisitor
 {
 private:
-    std::unordered_map<size_t, std::function<void(void*)> > behaviors_pool;
+    std::unordered_map<size_t, std::function<void(void*, void*&)>> behaviors_pool;
+    std::queue<void*> results_queue;
 
 public:
     MetaVisitor(/* args */) {}
     ~MetaVisitor() {}
 
     template<typename ...Fs>
-    void RegisterBehaviors(Fs&&... funcs)
+    auto RegisterBehaviors(Fs&&... funcs) -> void
     {
         (RegisterBehavior(std::forward<Fs>(funcs)), ...);
     }
 
     template<typename F>
-    void RegisterBehavior(F&& func)
+    auto RegisterBehavior(F&& func) -> void
     {
-        using ResultType = typename FuncTraits<F>::ResultType;
-        using ArgTypeTuple = typename FuncTraits<F>::ArgTuple;
-        using ArgsFrontType = Front_t<ArgTypeTuple>;
-        using Derived = std::remove_pointer_t<ArgsFrontType>;
+        using ReturnType = typename FuncTraits<F>::ResultType;
+        using ArgsList = typename FuncTraits<F>::ArgsList;
+        using FrontType = Front_t<ArgsList>;
+        using Derived = std::remove_pointer_t<FrontType>;
 
         behaviors_pool[UID<Derived>::get()] =
-            [func = std::forward<F>(func)](void* p) -> void {
-            func(reinterpret_cast<Derived*>(p));
+            [func = std::forward<F>(func)](void* elem, void*& ret) -> void {
+            ret = new ReturnType(func(reinterpret_cast<Derived*>(elem)));
         };
     }
 
     template<typename E>
-    void Visit(E* elem)
+    auto Visit(E* elem, void*& ret) -> void
     {
         using Derived = std::remove_pointer_t<E>;
 
-        behaviors_pool[UID<Derived>::get()](elem);
+        behaviors_pool[UID<Derived>::get()](elem, ret);
     }
 };
 
