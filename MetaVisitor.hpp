@@ -6,6 +6,7 @@
 #include <functional>
 #include <unordered_map>
 #include <queue>
+#include <memory>
 
 struct Triangle;
 struct Sphere;
