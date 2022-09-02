@@ -45,6 +45,7 @@ int main()
     void* ret2 = nullptr;
     meta_visitor.Visit(&tri1, ret1);
     meta_visitor.Visit(&sphere1, ret2);
+    // Todo : Convert type of function's return automatically
     cout << *(int*)ret1 << endl;
     cout << *(int*)ret2 << endl;
 
